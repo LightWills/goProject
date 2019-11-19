@@ -8,4 +8,5 @@ require (
 	github.com/gorilla/sessions v1.2.0
 	github.com/onsi/ginkgo v1.8.0 // indirect
 	github.com/onsi/gomega v1.5.0 // indirect
+	golang.org/x/crypto v0.0.0-20191117063200-497ca9f6d64f
 )

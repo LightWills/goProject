@@ -4,6 +4,7 @@ import (
 	"github.com/go-redis/redis"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
+	"golang.org/x/crypto/bcrypt"
 	"html/template"
 	"net/http"
 )
@@ -23,6 +24,8 @@ func main() {
 	r.HandleFunc("/", indexPostHandler).Methods("POST")
 	r.HandleFunc("/login", loginGetHandler).Methods("GET")
 	r.HandleFunc("/login", loginPostHandler).Methods("POST")
+	r.HandleFunc("/register", registerGetHandler).Methods("GET")
+	r.HandleFunc("/register", registerPostHandler).Methods("POST")
 	r.HandleFunc("/test", testGetHandler).Methods("GET")
 
 	fs := http.FileServer(http.Dir("./static/"))
@@ -32,6 +35,14 @@ func main() {
 }
 
 func indexGetHandler(w http.ResponseWriter, r *http.Request) {
+
+	session, _ := store.Get(r, "session")
+
+	_, ok := session.Values["username"]
+	if !ok {
+		http.Redirect(w, r, "/login", 302)
+	}
+
 	val, err := client.LRange("comments", 0, 10).Result()
 	if err != nil {
 		panic(err)
@@ -56,11 +67,22 @@ func loginGetHandler(w http.ResponseWriter, r *http.Request) {
 func loginPostHandler(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	username := r.PostForm.Get("name")
+	pwd := r.PostForm.Get("password")
 	session, _ := store.Get(r, "session")
+	var k = client.Get("user: " + username)
+	hash, err := k.Bytes()
+	if err != nil {
+		return
+	}
+	err = bcrypt.CompareHashAndPassword(hash, []byte(pwd))
+	if err != nil {
+		return
+	}
+
+	session, _ = store.Get(r, "session")
 	session.Values["username"] = username
 	session.Save(r, w)
-
-	templates.ExecuteTemplate(w, "login.html", nil)
+	http.Redirect(w, r, "/", 302)
 
 }
 
@@ -76,4 +98,28 @@ func testGetHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Write([]byte(username))
+}
+func registerGetHandler(w http.ResponseWriter, r *http.Request) {
+	templates.ExecuteTemplate(w, "register.html", nil)
+
+}
+
+func registerPostHandler(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	firstname := r.PostForm.Get("firstname")
+	password := r.PostForm.Get("password")
+	cost := bcrypt.DefaultCost
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), cost)
+	if err != nil {
+		return
+	}
+	client.Set("user: "+firstname, hash, 0)
+
+	/*session, _ := store.Get(r, "session")
+	session.Values["username"] = firstname
+	session.Save(r, w)*/
+
+	//templates.ExecuteTemplate(w, "login.html", nil)
+	http.Redirect(w, r, "/login", 302)
+
 }
