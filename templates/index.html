@@ -2,9 +2,16 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Comments</title>
 </head>
-<body>
-Index Page
-</body>
+    <body>
+
+        <h1>Comments</h1>
+        {{ range . }}
+       <div>
+           {{ . }}
+       </div>
+        {{ end }}
+
+    </body>
 </html>
