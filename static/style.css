@@ -1,0 +1,5 @@
+body > div {
+    background: hotpink;
+    padding: 10px;
+    border: 1px solid black;
+}
