@@ -7,10 +7,19 @@
     <body>
 
         <h1>Comments</h1>
+        <form method="post">
+            Comment data:<br>
+            <textarea name="comment_element"></textarea>
+
+            <div>
+                <button type="submit">
+                    Post Comment
+                </button>
+            </div>
+        </form>
+
         {{ range . }}
-       <div>
-           {{ . }}
-       </div>
+            <div>{{ . }}</div>
         {{ end }}
 
     </body>
