@@ -2,9 +2,18 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="/static/error.css" ></link>
+
     <title>Title</title>
 </head>
 <body>
+
+
+    {{if . }}
+        <div class="error" id="error">
+            {{ . }}
+        </div>
+    {{end}}
     Login page
     <form method="post">
         Username:<br>
