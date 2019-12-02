@@ -95,13 +95,17 @@ func loginPostHandler(w http.ResponseWriter, r *http.Request) {
 		templates.ExecuteTemplate(w, "login.html", "invalid login")
 		return
 	}
+	else {
+		session, _ = store.Get(r, "session")
+		session.Values["username"] = username
+		session.Save(r, w)
+		http.Redirect(w, r, "/", 302)
 
-	session, _ = store.Get(r, "session")
-	session.Values["username"] = username
-	session.Save(r, w)
-	http.Redirect(w, r, "/", 302)
+		return
+	}
 
-	return
+
+
 }
 
 func testGetHandler(w http.ResponseWriter, r *http.Request) {
